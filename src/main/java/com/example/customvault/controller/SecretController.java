@@ -2,10 +2,12 @@ package com.example.customvault.controller;
 
 
 import com.example.customvault.dto.Secret.*;
+import com.example.customvault.security.JwtUser;
 import com.example.customvault.services.SecretService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +22,9 @@ public class SecretController {
     private final SecretService secretService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addSecret(@Validated @RequestBody AddSecretModel addSecretModel) {
-        SecretIdResponse secretId = secretService.addSecret(addSecretModel);
+    public ResponseEntity<?> addSecret(@Validated @RequestBody AddSecretModel addSecretModel,
+                                       @AuthenticationPrincipal JwtUser jwtUser) {
+        SecretIdResponse secretId = secretService.addSecret(addSecretModel, jwtUser.getUsername());
         return ResponseEntity.ok(secretId);
     }
 

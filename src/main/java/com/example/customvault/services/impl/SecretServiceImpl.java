@@ -1,9 +1,13 @@
 package com.example.customvault.services.impl;
 
 import com.example.customvault.dto.Secret.*;
+import com.example.customvault.models.Secret;
 import com.example.customvault.services.SecretService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 
 @Service
@@ -15,12 +19,18 @@ public class SecretServiceImpl implements SecretService {
 
 
     @Override
-    public SecretIdResponse addSecret(AddSecretModel addSecretModel) {
+    public SecretIdResponse addSecret(AddSecretModel addSecretModel, String username) {
         // TODO:
         //  1) Принять секрет из модели (имя + значение)
         // 2) Зашифровать значение секрета через мастер-ключ
         // 3) Мастер ключ получить из дочерних
         // 4) Сгенерировать id для имени секрета (хеш/случаный uuid...)
+
+        Secret secret = new Secret();
+        secret.setSecretId(generateId(addSecretModel.getSecret())); // id секрета через SHA-256
+        secret.setWrappedSecretValue(seal(addSecretModel.getValue())); // TODO: подписать и зашифровать мастер-ключом
+        secret.setOwnerUsername(username);
+        
         // 5) В БД положить пару (secretId, wrappedSecret) + владельца
         // 6) Вернуть клиенту secretId
 
@@ -47,5 +57,25 @@ public class SecretServiceImpl implements SecretService {
         // 4) Расшифровать извлеченный wrappedSecret с помощью мастер-ключа
         // 5) Расшифрованный секрет вернуть клиентуу
         return null;
+    }
+
+
+    public static String generateId(String secretName) {
+        try {
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            byte[] hashBytes = digest.digest(secretName.getBytes());
+
+            StringBuilder hexString = new StringBuilder();
+            for (byte hashByte : hashBytes) {
+                String hex = Integer.toHexString(0xff & hashByte);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Произошла ошибка при добавлении секрета");
+        }
     }
 }
