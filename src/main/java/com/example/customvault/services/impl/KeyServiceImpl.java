@@ -18,7 +18,7 @@ public class KeyServiceImpl implements KeyService {
             "of just",
             "flexability love and trust"
     };
-    private final int KEY_LENGTH = 25;
+    private final int KEY_LENGTH = 32;
     private String masterKey = null;
     @Override
     public String generateMasterKey() {

@@ -13,4 +13,6 @@ public interface UserService {
     User createUser(User user);
 
     boolean existsByUsername(String username);
+
+    User getByUsername(String username);
 }
