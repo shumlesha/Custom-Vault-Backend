@@ -2,6 +2,7 @@ package com.example.customvault.services.impl;
 
 import com.example.customvault.dto.Secret.*;
 import com.example.customvault.models.Secret;
+import com.example.customvault.repository.SecretRepository;
 import com.example.customvault.services.SecretService;
 import lombok.RequiredArgsConstructor;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -16,6 +17,7 @@ import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.UUID;
 
 
 @Service
@@ -23,27 +25,25 @@ import java.util.Collection;
 public class SecretServiceImpl implements SecretService {
 
     private final KeyServiceImpl keyService;
+    private final SecretRepository repository;
     //private final Ecc eccService;
 
 
     @Override
     public SecretIdResponse addSecret(AddSecretModel addSecretModel, String username) {
-        // TODO:
-        //  1) Принять секрет из модели (имя + значение)
-        //  2) Зашифровать значение секрета через мастер-ключ
-        //  3) Мастер ключ получить из дочерних
-        //  4) Сгенерировать id для имени секрета (хеш/случаный uuid...)
 
         Secret secret = new Secret();
         secret.setSecretId(generateId(addSecretModel.getSecret())); // id секрета через SHA-256
-        //secret.setWrappedSecretValue(seal(addSecretModel.getValue())); // TODO: подписать и зашифровать мастер-ключом
+        try {
+            secret.setWrappedSecretValue(seal(addSecretModel.getValue()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         secret.setOwnerUsername(username);
+        secret.setId(UUID.randomUUID());
+        repository.save(secret);
 
-        // TODO:
-        //  5) В БД положить пару (secretId, wrappedSecret) + владельца
-        //  6) Вернуть клиенту secretId
-
-        return null;
+        return new SecretIdResponse(secret.getSecretId());
     }
 
     @Override
