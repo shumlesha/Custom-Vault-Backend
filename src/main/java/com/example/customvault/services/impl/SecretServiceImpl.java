@@ -30,7 +30,7 @@ public class SecretServiceImpl implements SecretService {
         secret.setSecretId(generateId(addSecretModel.getSecret())); // id секрета через SHA-256
         secret.setWrappedSecretValue(seal(addSecretModel.getValue())); // TODO: подписать и зашифровать мастер-ключом
         secret.setOwnerUsername(username);
-        
+
         // 5) В БД положить пару (secretId, wrappedSecret) + владельца
         // 6) Вернуть клиенту secretId
 
@@ -75,7 +75,15 @@ public class SecretServiceImpl implements SecretService {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Произошла ошибка при добавлении секрета");
+            throw new RuntimeException("Произошла ошибка при шифровании секрета");
         }
+    }
+
+    public String seal(String secretValue) {
+
+    }
+
+    public String unseal(String wrappedSecretValue) {
+        
     }
 }
