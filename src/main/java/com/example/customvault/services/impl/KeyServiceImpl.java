@@ -1,6 +1,7 @@
 package com.example.customvault.services.impl;
 
 import com.example.customvault.services.KeyService;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,13 @@ public class KeyServiceImpl implements KeyService {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(combinedKeys.toString().getBytes());
 
-            byte[] truncatedHash = Arrays.copyOf(hash, 32);
+            //byte[] truncatedHash = Arrays.copyOf(hash, 32);
 
             StringBuilder masterKeyBuilder = new StringBuilder();
-            for (byte b : truncatedHash) {
+            for (byte b : hash) {
                 masterKeyBuilder.append(String.format("%02x", b));
             }
-            masterKey = masterKeyBuilder.toString();
+            masterKey = masterKeyBuilder.toString().substring(KEY_LENGTH);
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
