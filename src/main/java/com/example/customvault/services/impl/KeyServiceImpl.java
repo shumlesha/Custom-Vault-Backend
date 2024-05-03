@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.List;
@@ -22,7 +24,24 @@ public class KeyServiceImpl implements KeyService {
     private String masterKey = null;
     @Override
     public String generateMasterKey() {
-        masterKey = getRandomString(KEY_LENGTH);
+        StringBuilder combinedKeys = new StringBuilder();
+        for (String key : CHILD_KEYS) {
+            combinedKeys.append(key);
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(combinedKeys.toString().getBytes());
+
+            StringBuilder masterKeyBuilder = new StringBuilder();
+            for (byte b : hash) {
+                masterKeyBuilder.append(String.format("%02x", b));
+            }
+            masterKey = masterKeyBuilder.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return getRandomString(KEY_LENGTH);
+        }
 
         return masterKey;
     }
