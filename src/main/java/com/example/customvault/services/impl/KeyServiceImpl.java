@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -32,8 +33,10 @@ public class KeyServiceImpl implements KeyService {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(combinedKeys.toString().getBytes());
 
+            byte[] truncatedHash = Arrays.copyOf(hash, 32);
+
             StringBuilder masterKeyBuilder = new StringBuilder();
-            for (byte b : hash) {
+            for (byte b : truncatedHash) {
                 masterKeyBuilder.append(String.format("%02x", b));
             }
             masterKey = masterKeyBuilder.toString();
